@@ -12,7 +12,13 @@ window.Vue = require('vue').default;
 import router from "./routes";
 
 
+
+//? Vue router
+//? Store management
+import store from "./store/index";
+
 const app = new Vue({
     router,
+    store,
     el: '#app',
 });

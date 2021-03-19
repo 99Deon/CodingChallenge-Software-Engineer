@@ -1,5 +1,13 @@
 <template>
   <div>
+    <!-- The Modal Of add product -->
+    <div id="myModal" class="modal" v-if="modalDisply">
+      <div class="model-content">
+        <add-product>
+          <span class="close" @click="modalDisply = !modalDisply">&times;</span>
+        </add-product>
+      </div>
+    </div>
     <button @click="AddProduct">Add Product</button>
     <h2>Product List</h2>
     <!-- Table of show products -->
@@ -11,38 +19,47 @@
         <th>price</th>
         <th>category</th>
       </tr>
-      <tr>
-        <td>1</td>
-        <td>Pipsi</td>
-        <td>this just test</td>
-        <td>12</td>
-        <td>liquid</td>
+      <tr v-for="(product, index) in products" :key="index">
+        <td>{{ product.id }}</td>
+        <td>{{ product.name }}</td>
+        <td>{{ product.description }}</td>
+        <td>{{ product.price }}</td>
+        <td>{{ product.category_id }}</td>
       </tr>
     </table>
-
-    <!-- The Modal Of add product -->
-    <div id="myModal" class="modal" v-if="modalDisply">
-      <div class="model-content">
-        <add-product>
-          <span class="close" @click="modalDisply = !modalDisply">&times;</span>
-        </add-product>
-      </div>
-    </div>
   </div>
 </template>
 <script>
+import { mapState } from "vuex";
 import AddProduct from "./AddProduct.vue";
 export default {
+  components: { AddProduct },
   data() {
     return {
       modalDisply: false,
     };
   },
-  components: { AddProduct },
+  computed: {
+    ...mapState(["expected"]),
+    products() {
+      return this.$store.getters.products;
+    },
+  },
   methods: {
-    AddProduct() {
+    //All request in create.
+    init: function () {
+      this.$store.dispatch("fetchData", {
+        path: "/api/fetch/products",
+        mutation: "FETCH_PRODUCTS",
+        related: "fetch-products",
+      });
+    },
+    AddProduct: function () {
       this.modalDisply = true;
     },
+  },
+  mounted() {
+    this.init();
   },
 };
 </script>

@@ -2,10 +2,11 @@
   <div style="width: 700px">
     <slot></slot>
     <form v-on:submit.prevent="submitFormProdut">
-      <div class="alert" v-if="errors">
-        <h1>Error !!</h1>
-        <ul v-for="(erros, key) in errors" :key="key">
-          <li>{{ erros }}</li>
+      <div v-if="alert" style="color: red">
+        <ul>
+          <li v-for="(item, index) in alert" :key="index">
+            {{ item }}
+          </li>
         </ul>
       </div>
       <div class="form-control">
@@ -20,12 +21,29 @@
       </div>
       <div class="form-control">
         <label for="price">Price</label>
-        <input id="price" name="price" type="number" v-model="product.price" />
+        <input
+          id="price"
+          name="price"
+          required
+          type="number"
+          v-model="product.price"
+        />
       </div>
       <div class="form-control">
         <label for="category">Category</label>
-        <select id="category" name="category">
-          <option value="google">Google</option>
+        <select
+          id="category"
+          v-model="product.category"
+          name="category"
+          required
+        >
+          <option
+            v-for="(item, index) in categories"
+            :key="index"
+            :value="item.id"
+          >
+            {{ item.name }}
+          </option>
         </select>
       </div>
 
@@ -33,6 +51,7 @@
         <h2>Product Description ?</h2>
 
         <textarea
+          required
           id="how-video"
           value="description"
           v-model="product.description"
@@ -40,12 +59,7 @@
       </div>
       <div class="form-control">
         <label for="product-image">Product Image</label>
-        <input
-          id="img-file"
-          name="product-image"
-          type="file"
-          @change="update_images()"
-        />
+        <input required type="file" id="img-file" @change="uploadImage()" />
       </div>
       <div class="btn">
         <button>Add Product</button>
@@ -54,10 +68,12 @@
   </div>
 </template>
 <script>
+//libs
+import { mapState } from "vuex";
 export default {
   data() {
     return {
-      errors: null,
+      alert: null,
       product: {
         name: "",
         price: "",
@@ -65,15 +81,57 @@ export default {
         description: "",
         image: "",
       },
+      dt: "",
     };
   },
+  computed: {
+    ...mapState(["expected"]),
+    categories() {
+      return this.$store.getters.categories;
+    },
+  },
+  watch: {
+    expected() {
+      //alert errors
+      {
+        let expected = this.$store.getters.expected("add-product");
+        if (expected != undefined) {
+          if (expected.status == "error") {
+            this.alert = expected.result.subMessage;
+          } else if (expected.status == "success") {
+            this.alert = [expected.result.subMessage];
+
+            this.$store.commit("FETCH_ADD_PRODUCT", expected.result.data);
+          }
+        }
+      }
+    },
+  },
   methods: {
-    submitFormProdut() {
-      alert("dd");
+    //All request in create.
+    init: function () {
+      this.$store.dispatch("fetchData", {
+        path: "/api/fetch/categories",
+        mutation: "FETCH_CATEGORIES",
+        related: "fetch-categories",
+      });
+    },
+    //Add product.
+    submitFormProdut: function () {
+      this.dt.append("name", this.product.name);
+      this.dt.append("price", this.product.price);
+      this.dt.append("category", this.product.category);
+      this.dt.append("description", this.product.description);
+
+      this.$store.dispatch("postData", {
+        path: "/api/add/product",
+        data: this.dt,
+        related: "add-product",
+      });
     },
 
     // Update image
-    update_images() {
+    uploadImage() {
       // Empty the images so that we upload new ones
       const image = document.querySelector("#img-file");
       // Make sure the file input is not null
@@ -83,20 +141,12 @@ export default {
       // Make sure the selected file is an image
       if (!RegExp(/image/i).test(image.files[0]["type"])) return;
       // The file is a valid image.
-      const formData = new FormData();
-      formData.append("image", image.files[0]);
-      this.$store;
-      // .dispatch("uploadFile", {
-      //   path: "/api/update/image/profile",
-      //   data: formData,
-      //   related: "add-image",
-      //   returned: true,
-      // })
-      this.product.image = formData;
-      // .then((res) => {
-      //   return res ? true : false;
-      // });
+      this.dt = new FormData();
+      this.dt.append("image", image.files[0]);
     },
+  },
+  created() {
+    this.init();
   },
 };
 </script>
