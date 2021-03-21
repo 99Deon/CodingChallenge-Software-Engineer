@@ -9,14 +9,37 @@
       </div>
     </div>
     <button @click="AddProduct">Add Product</button>
-    <h2>Product List</h2>
+
+    <div class="flex-container">
+      <div class="flex-item-left">
+        <h2>Product List</h2>
+      </div>
+      <div class="flex-item-right">
+        <label>filter by a category</label>
+        <select
+          id="category"
+          name="category"
+          v-model="category"
+          required
+          @change="filter()"
+        >
+          <option
+            v-for="(item, index) in categories"
+            :key="index"
+            :value="item.id"
+          >
+            {{ item.name }}
+          </option>
+        </select>
+      </div>
+    </div>
     <!-- Table of show products -->
     <table>
       <tr>
         <th>ID</th>
-        <th>name <i class="fas fa-cat"></i></th>
+        <th>name <button @click="sortName()">sort</button></th>
         <th>description</th>
-        <th>price <i class="fas fa-cat"></i></th>
+        <th>price <button @click="sortPrice()">sort</button><span></span></th>
         <th>category</th>
       </tr>
       <tr v-for="(product, index) in products" :key="index">
@@ -37,12 +60,16 @@ export default {
   data() {
     return {
       modalDisply: false,
+      category: null,
     };
   },
   computed: {
     ...mapState(["expected"]),
     products() {
       return this.$store.getters.products;
+    },
+    categories() {
+      return this.$store.getters.categories;
     },
   },
   methods: {
@@ -53,9 +80,54 @@ export default {
         mutation: "FETCH_PRODUCTS",
         related: "fetch-products",
       });
+      this.$store.dispatch("fetchData", {
+        path: "/api/fetch/categories",
+        mutation: "FETCH_CATEGORIES",
+        related: "fetch-categories",
+      });
     },
+    // Desply modal
     AddProduct: function () {
       this.modalDisply = true;
+    },
+    // Sort element by name .
+    sortName() {
+      this.products.sort(function (a, b) {
+        const nameA = a.name.toUpperCase();
+        const nameB = b.name.toUpperCase();
+
+        let comparison = 0;
+        if (nameA > nameB) {
+          comparison = 1;
+        } else if (nameA < nameB) {
+          comparison = -1;
+        }
+        return comparison;
+      });
+    },
+    // Sort by price
+    sortPrice() {
+      this.products.sort(function (a, b) {
+        const priceA = a.price;
+        const priceB = b.price;
+
+        let comparison = 0;
+        if (priceA > priceB) {
+          comparison = 1;
+        } else if (priceA < priceB) {
+          comparison = -1;
+        }
+        return comparison;
+      });
+    },
+    // Filter by category
+    filter() {
+      this.$store.dispatch("fetchData", {
+        path: "/api/fetch/products/by/category",
+        mutation: "FETCH_PRODUCTS",
+        related: "fetch-products",
+        data: this.category,
+      });
     },
   },
   mounted() {

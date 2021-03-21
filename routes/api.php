@@ -18,4 +18,5 @@ use App\Http\Controllers\ProductController;
 ######### Produts #########
 Route::post("/add/product", [ProductController::class, "addProduct"]); //Add product
 Route::get("/fetch/products", [ProductController::class, "getProducts"]); //get product
-Route::get("/fetch/categories", [ProductController::class, "getCategories"]);//get categories
+Route::get("/fetch/categories", [ProductController::class, "getCategories"]); //get categories
+Route::get("/fetch/products/by/category", [ProductController::class, "filter"]);//get products by categories

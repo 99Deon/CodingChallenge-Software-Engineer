@@ -2004,14 +2004,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   },
   methods: {
-    //All request in create.
-    init: function init() {
-      this.$store.dispatch("fetchData", {
-        path: "/api/fetch/categories",
-        mutation: "FETCH_CATEGORIES",
-        related: "fetch-categories"
-      });
-    },
     //Add product.
     submitFormProdut: function submitFormProdut() {
       this.dt.append("name", this.product.name);
@@ -2038,9 +2030,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.dt = new FormData();
       this.dt.append("image", image.files[0]);
     }
-  },
-  created: function created() {
-    this.init();
   }
 });
 
@@ -2057,8 +2046,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _AddProduct_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AddProduct.vue */ "./resources/js/components/pieces/AddProduct.vue");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _AddProduct_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./AddProduct.vue */ "./resources/js/components/pieces/AddProduct.vue");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -2096,20 +2085,47 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   components: {
-    AddProduct: _AddProduct_vue__WEBPACK_IMPORTED_MODULE_0__.default
+    AddProduct: _AddProduct_vue__WEBPACK_IMPORTED_MODULE_1__.default
   },
   data: function data() {
     return {
-      modalDisply: false
+      modalDisply: false,
+      category: null
     };
   },
-  computed: _objectSpread(_objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_1__.mapState)(["expected"])), {}, {
+  computed: _objectSpread(_objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_0__.mapState)(["expected"])), {}, {
     products: function products() {
       return this.$store.getters.products;
+    },
+    categories: function categories() {
+      return this.$store.getters.categories;
     }
   }),
   methods: {
@@ -2120,9 +2136,56 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         mutation: "FETCH_PRODUCTS",
         related: "fetch-products"
       });
+      this.$store.dispatch("fetchData", {
+        path: "/api/fetch/categories",
+        mutation: "FETCH_CATEGORIES",
+        related: "fetch-categories"
+      });
     },
+    // Desply modal
     AddProduct: function AddProduct() {
       this.modalDisply = true;
+    },
+    // Sort element by name .
+    sortName: function sortName() {
+      this.products.sort(function (a, b) {
+        var nameA = a.name.toUpperCase();
+        var nameB = b.name.toUpperCase();
+        var comparison = 0;
+
+        if (nameA > nameB) {
+          comparison = 1;
+        } else if (nameA < nameB) {
+          comparison = -1;
+        }
+
+        return comparison;
+      });
+    },
+    // Sort by price
+    sortPrice: function sortPrice() {
+      this.products.sort(function (a, b) {
+        var priceA = a.price;
+        var priceB = b.price;
+        var comparison = 0;
+
+        if (priceA > priceB) {
+          comparison = 1;
+        } else if (priceA < priceB) {
+          comparison = -1;
+        }
+
+        return comparison;
+      });
+    },
+    // Filter by category
+    filter: function filter() {
+      this.$store.dispatch("fetchData", {
+        path: "/api/fetch/products/by/category",
+        mutation: "FETCH_PRODUCTS",
+        related: "fetch-products",
+        data: this.category
+      });
     }
   },
   mounted: function mounted() {
@@ -39915,12 +39978,96 @@ var render = function() {
     _vm._v(" "),
     _c("button", { on: { click: _vm.AddProduct } }, [_vm._v("Add Product")]),
     _vm._v(" "),
-    _c("h2", [_vm._v("Product List")]),
+    _c("div", { staticClass: "flex-container" }, [
+      _vm._m(0),
+      _vm._v(" "),
+      _c("div", { staticClass: "flex-item-right" }, [
+        _c("label", [_vm._v("filter by a category")]),
+        _vm._v(" "),
+        _c(
+          "select",
+          {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.category,
+                expression: "category"
+              }
+            ],
+            attrs: { id: "category", name: "category", required: "" },
+            on: {
+              change: [
+                function($event) {
+                  var $$selectedVal = Array.prototype.filter
+                    .call($event.target.options, function(o) {
+                      return o.selected
+                    })
+                    .map(function(o) {
+                      var val = "_value" in o ? o._value : o.value
+                      return val
+                    })
+                  _vm.category = $event.target.multiple
+                    ? $$selectedVal
+                    : $$selectedVal[0]
+                },
+                function($event) {
+                  return _vm.filter()
+                }
+              ]
+            }
+          },
+          _vm._l(_vm.categories, function(item, index) {
+            return _c("option", { key: index, domProps: { value: item.id } }, [
+              _vm._v("\n          " + _vm._s(item.name) + "\n        ")
+            ])
+          }),
+          0
+        )
+      ])
+    ]),
     _vm._v(" "),
     _c(
       "table",
       [
-        _vm._m(0),
+        _c("tr", [
+          _c("th", [_vm._v("ID")]),
+          _vm._v(" "),
+          _c("th", [
+            _vm._v("name "),
+            _c(
+              "button",
+              {
+                on: {
+                  click: function($event) {
+                    return _vm.sortName()
+                  }
+                }
+              },
+              [_vm._v("sort")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("th", [_vm._v("description")]),
+          _vm._v(" "),
+          _c("th", [
+            _vm._v("price "),
+            _c(
+              "button",
+              {
+                on: {
+                  click: function($event) {
+                    return _vm.sortPrice()
+                  }
+                }
+              },
+              [_vm._v("sort")]
+            ),
+            _c("span")
+          ]),
+          _vm._v(" "),
+          _c("th", [_vm._v("category")])
+        ]),
         _vm._v(" "),
         _vm._l(_vm.products, function(product, index) {
           return _c("tr", { key: index }, [
@@ -39945,16 +40092,8 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("tr", [
-      _c("th", [_vm._v("ID")]),
-      _vm._v(" "),
-      _c("th", [_vm._v("name "), _c("i", { staticClass: "fas fa-cat" })]),
-      _vm._v(" "),
-      _c("th", [_vm._v("description")]),
-      _vm._v(" "),
-      _c("th", [_vm._v("price "), _c("i", { staticClass: "fas fa-cat" })]),
-      _vm._v(" "),
-      _c("th", [_vm._v("category")])
+    return _c("div", { staticClass: "flex-item-left" }, [
+      _c("h2", [_vm._v("Product List")])
     ])
   }
 ]

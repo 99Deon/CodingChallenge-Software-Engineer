@@ -110,14 +110,6 @@ export default {
     },
   },
   methods: {
-    //All request in create.
-    init: function () {
-      this.$store.dispatch("fetchData", {
-        path: "/api/fetch/categories",
-        mutation: "FETCH_CATEGORIES",
-        related: "fetch-categories",
-      });
-    },
     //Add product.
     submitFormProdut: function () {
       this.dt.append("name", this.product.name);
@@ -146,9 +138,6 @@ export default {
       this.dt = new FormData();
       this.dt.append("image", image.files[0]);
     },
-  },
-  created() {
-    this.init();
   },
 };
 </script>

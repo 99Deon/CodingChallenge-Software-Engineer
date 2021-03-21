@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
+use Illuminate\Http\Request;
 
 use App\Models\Product;
 use App\Models\Category;
@@ -41,5 +42,10 @@ class ProductController extends Controller
     public function getCategories()
     {
         return Category::All();
+    }
+    //* Get all Product by Categories
+    public function filter(Request $request)
+    {
+        return  Product::where('category_id', $request->data)->get();
     }
 }
