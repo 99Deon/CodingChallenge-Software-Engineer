@@ -14,9 +14,9 @@
     <table>
       <tr>
         <th>ID</th>
-        <th>name</th>
+        <th>name <i class="fas fa-cat"></i></th>
         <th>description</th>
-        <th>price</th>
+        <th>price <i class="fas fa-cat"></i></th>
         <th>category</th>
       </tr>
       <tr v-for="(product, index) in products" :key="index">

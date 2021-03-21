@@ -2,7 +2,7 @@
   <div style="width: 700px">
     <slot></slot>
     <form v-on:submit.prevent="submitFormProdut">
-      <div v-if="alert" style="color: red">
+      <div v-if="alert" :style="'color:' + color">
         <ul>
           <li v-for="(item, index) in alert" :key="index">
             {{ item }}
@@ -74,6 +74,7 @@ export default {
   data() {
     return {
       alert: null,
+      color: null,
       product: {
         name: "",
         price: "",
@@ -97,10 +98,11 @@ export default {
         let expected = this.$store.getters.expected("add-product");
         if (expected != undefined) {
           if (expected.status == "error") {
+            this.color = "red";
             this.alert = expected.result.subMessage;
           } else if (expected.status == "success") {
             this.alert = [expected.result.subMessage];
-
+            this.color = "green";
             this.$store.commit("FETCH_ADD_PRODUCT", expected.result.data);
           }
         }
